@@ -7,27 +7,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* Google Material Design inspired colors */
-            --background: #f8f9fa;
-            --foreground: #202124;
-            --primary: #1a73e8;
-            --primary-light: rgba(26, 115, 232, 0.1);
-            --card-bg: #ffffff;
-            --border-color: #dadce0;
-            --muted-foreground: #5f6368;
-            --success: #188038;
-            --warning: #f29900;
-            --danger: #d93025;
-            --shadow: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15);
+            /* VSCode-inspired dark theme */
+            --background: #1e1e1e;
+            --foreground: #d4d4d4;
+            --primary: #0e639c;
+            --primary-light: rgba(14, 99, 156, 0.1);
+            --card-bg: #252526;
+            --border-color: #3c3c3c;
+            --muted-foreground: #858585;
+            --success: #2ea043;
+            --warning: #d7ba7d;
+            --danger: #d16969;
+            --shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         
         body {
-            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, Arial, sans-serif;
             margin: 0;
             padding: 0;
             background: var(--background);
             color: var(--foreground);
-            line-height: 1.5;
+            line-height: 1.6;
             min-height: 100vh;
         }
         
@@ -39,11 +39,11 @@
         
         .card {
             background: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 4px;
             box-shadow: var(--shadow);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border: none;
+            border: 1px solid var(--border-color);
         }
         
         .header {
@@ -53,7 +53,7 @@
         }
         
         .header h1 {
-            font-size: 2.25rem;
+            font-size: 2.5rem;
             margin-bottom: 1rem;
             color: var(--foreground);
             font-weight: 500;
@@ -62,17 +62,16 @@
         
         .header p {
             color: var(--muted-foreground);
-            font-size: 1rem;
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
-            line-height: 1.6;
         }
 
         .header h3 {
             color: var(--muted-foreground);
             font-weight: 400;
             margin-top: 1rem;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
         
         .price-cards {
@@ -81,11 +80,12 @@
             margin-bottom: 2rem;
             overflow-x: auto;
             padding: 0.5rem;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border-color) var(--card-bg);
         }
         
         .price-cards::-webkit-scrollbar {
+            height: 6px;
             display: none;
         }
         
@@ -93,28 +93,15 @@
             flex: 1;
             min-width: 250px;
             padding: 1.25rem;
-            border-radius: 8px;
+            border-radius: 4px;
             background: var(--card-bg);
             text-align: center;
             box-shadow: var(--shadow);
-            border: none;
-            position: relative;
-        }
-        
-        .price-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 0 0 8px 8px;
-            opacity: 0.1;
+            border: 1px solid var(--border-color);
         }
         
         .price-label {
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             font-weight: 500;
             margin-bottom: 0.75rem;
             color: var(--muted-foreground);
@@ -122,14 +109,14 @@
         }
         
         .price-value {
-            font-size: 1.875rem;
-            font-weight: 500;
+            font-size: 2rem;
+            font-weight: 600;
             margin-bottom: 0.75rem;
             color: var(--primary);
         }
         
         .price-info {
-            font-size: 0.875rem;
+            font-size: 0.85rem;
             color: var(--muted-foreground);
         }
         
@@ -138,20 +125,27 @@
             position: relative;
             margin: 2rem 0;
             background: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 4px;
             padding: 1.5rem;
             box-shadow: var(--shadow);
-            border: none;
+            border: 1px solid var(--border-color);
         }
         
         .coin-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
             margin-bottom: 2rem;
-            text-align: center;
+            position: sticky;
+            top: 0;
+            background: var(--background);
+            padding: 1rem 0;
+            z-index: 10;
         }
         
-        .coin-selector select {
-            padding: 0.625rem 2rem 0.625rem 1rem;
-            font-size: 0.875rem;
+        .coin-selector select, .coin-selector button {
+            padding: 0.75rem 2rem 0.75rem 1rem;
+            font-size: 0.95rem;
             border-radius: 4px;
             border: 1px solid var(--border-color);
             background: var(--card-bg);
@@ -159,10 +153,21 @@
             cursor: pointer;
             min-width: 200px;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23858585' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.5rem center;
             background-size: 1em;
+        }
+        
+        .coin-selector button {
+            padding: 0.75rem 1rem;
+            min-width: 120px;
+            background-image: none;
+        }
+        
+        .coin-selector button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
         
         .coin-selector select:focus {
@@ -175,21 +180,21 @@
             margin: 1.5rem 0;
             text-align: center;
             font-weight: 500;
-            padding: 0.875rem;
+            padding: 1rem;
             border-radius: 4px;
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            font-size: 0.875rem;
+            font-size: 0.95rem;
         }
         
         .comparison.overvalued {
             color: var(--danger);
-            background: #fce8e6;
+            background: rgba(209, 105, 105, 0.1);
         }
         
         .comparison.undervalued {
             color: var(--success);
-            background: #e6f4ea;
+            background: rgba(46, 160, 67, 0.1);
         }
         
         .comparison.fair {
@@ -200,25 +205,24 @@
         .quarterly-info {
             margin-top: 2rem;
             background: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 4px;
             padding: 1.5rem;
             box-shadow: var(--shadow);
-            border: none;
+            border: 1px solid var(--border-color);
         }
         
         .quarterly-info h3 {
             margin-top: 0;
             color: var(--foreground);
             font-weight: 500;
-            font-size: 1rem;
+            font-size: 1.1rem;
             margin-bottom: 0.75rem;
         }
         
         .quarterly-info p {
             color: var(--muted-foreground);
             margin-bottom: 0;
-            line-height: 1.6;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
         
         .status {
@@ -227,8 +231,8 @@
             justify-content: center;
             margin-top: 1.5rem;
             color: var(--muted-foreground);
-            font-size: 0.875rem;
-            gap: 0.5rem;
+            font-size: 0.9rem;
+            gap: 0.75rem;
         }
         
         .status-indicator {
@@ -236,12 +240,53 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background-color: var(--primary);
+            background-color: var(--success);
+        }
+        
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--muted-foreground);
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(209, 105, 105, 0.1);
+            color: var(--danger);
+            border-radius: 4px;
+            margin-top: 1.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .error-message button {
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .error-message button:hover {
+            background: #b35959;
         }
         
         .last-updated {
             text-align: right;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             color: var(--muted-foreground);
             margin-top: 0.75rem;
         }
@@ -250,7 +295,7 @@
             text-align: center;
             margin-top: 3rem;
             color: var(--muted-foreground);
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             padding: 1.5rem;
             border-top: 1px solid var(--border-color);
         }
@@ -272,7 +317,7 @@
             }
             
             .header h1 {
-                font-size: 1.75rem;
+                font-size: 2rem;
             }
             
             .price-card {
@@ -288,6 +333,11 @@
             .quarterly-info {
                 padding: 1rem;
             }
+            
+            .coin-selector {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -296,7 +346,7 @@
         <div class="header">
             <h1>Cryptocurrency Fair Price Calculator</h1>
             <p>Tracking real-time cryptocurrency prices and calculating fair value based on technical indicators and quarterly averages</p>
-            <h3>Created by: Justin Marlo R. Sibonga</h3>
+            <h3>Created by: <b>Justin Marlo R. Sibonga</b></h3>
         </div>
 
         <div class="coin-selector">
@@ -307,6 +357,7 @@
                 <option value="cardano">Cardano (ADA)</option>
                 <option value="solana">Solana (SOL)</option>
             </select>
+            <button id="refreshButton" onclick="fetchData()">Refresh</button>
         </div>
         
         <div class="card">
@@ -326,7 +377,7 @@
                 <div class="price-card quarterly">
                     <div class="price-label">Quarterly Fair Price</div>
                     <div class="price-value" id="quarterlyPrice">$--,---</div>
-                    <div class="price-info">Based on quarterly averages</div>
+                    <div class="price-info">Based on latest quarter average</div>
                 </div>
 
                 <div class="price-card best-sell">
@@ -350,32 +401,35 @@
             <div class="status">
                 <span class="status-indicator"></span>
                 <span id="statusText">Fetching real-time data...</span>
+                <span class="spinner" id="loadingSpinner"></span>
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                Failed to fetch data. Please try again.
+                <button onclick="fetchData()">Retry</button>
             </div>
             
             <div class="last-updated" id="lastUpdated"></div>
         </div>
         
         <div class="footer">
-            <p>Data provided by CoinGecko API • Refreshes automatically every 5 minutes</p>
+            <p>Data provided by Binance API • Refreshes automatically every 5 minutes</p>
         </div>
     </div>
 
     <script>
-        // Chart instance
         let btcChart = null;
         let historicalData = [];
         let quarterlyData = [];
         let currentCoin = 'bitcoin';
-        // Update coin symbols to match Binance pairs
         const coinSymbols = {
-            'bitcoin': {symbol: 'BTC', pair: 'BTCUSDT', sellThreshold: 1.25}, // 25% above fair price
+            'bitcoin': {symbol: 'BTC', pair: 'BTCUSDT', sellThreshold: 1.25},
             'ethereum': {symbol: 'ETH', pair: 'ETHUSDT', sellThreshold: 1.30},
             'ripple': {symbol: 'XRP', pair: 'XRPUSDT', sellThreshold: 1.35},
             'cardano': {symbol: 'ADA', pair: 'ADAUSDT', sellThreshold: 1.40},
             'solana': {symbol: 'SOL', pair: 'SOLUSDT', sellThreshold: 1.35}
         };
 
-        // Add cryptocurrency descriptions
         const coinDescriptions = {
             'bitcoin': {
                 title: "Bitcoin Quarterly Analysis",
@@ -399,24 +453,28 @@
             }
         };
 
-        // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
-            // Set initial quarterly info
             const quarterlyInfo = document.querySelector('.quarterly-info');
             quarterlyInfo.innerHTML = `
                 <h3>${coinDescriptions['bitcoin'].title}</h3>
                 <p>${coinDescriptions['bitcoin'].description}</p>
             `;
             fetchData();
-            // Set up automatic refresh every 5 minutes
             setInterval(fetchData, 300000);
         });
         
         async function fetchData() {
             try {
-                document.getElementById('statusText').textContent = 'Fetching real-time data...';
+                const statusText = document.getElementById('statusText');
+                const loadingSpinner = document.getElementById('loadingSpinner');
+                const errorMessage = document.getElementById('errorMessage');
+                const refreshButton = document.getElementById('refreshButton');
                 
-                // Fetch 1-day klines (candlesticks) for the last 365 days
+                statusText.textContent = 'Fetching real-time data...';
+                loadingSpinner.style.display = 'inline-block';
+                errorMessage.style.display = 'none';
+                refreshButton.disabled = true;
+                
                 const response = await fetch(
                     `https://api.binance.com/api/v3/klines?symbol=${coinSymbols[currentCoin].pair}&interval=1d&limit=365`
                 );
@@ -427,47 +485,38 @@
                 
                 const data = await response.json();
                 
-                // Extract price data from klines
-                // Binance kline format: [timestamp, open, high, low, close, volume, ...]
                 historicalData = data.map(item => ({
                     timestamp: item[0],
-                    price: parseFloat(item[4]) // Using closing price
+                    price: parseFloat(item[4])
                 }));
                 
-                // Rest of the calculations remain the same
                 const last200Days = historicalData.slice(-200);
                 const sum = last200Days.reduce((acc, entry) => acc + entry.price, 0);
                 const sma = sum / last200Days.length;
                 
-                // Calculate quarterly averages
                 const days = historicalData.length;
                 const daysPerQuarter = Math.floor(days / 4);
-                
                 quarterlyData = [];
                 for (let i = 0; i < 4; i++) {
                     const start = i * daysPerQuarter;
-                    const end = start + daysPerQuarter;
+                    const end = (i === 3) ? days : start + daysPerQuarter;
                     const quarterSlice = historicalData.slice(start, end);
                     const quarterSum = quarterSlice.reduce((acc, entry) => acc + entry.price, 0);
                     const quarterAvg = quarterSum / quarterSlice.length;
-                    
                     quarterlyData.push({
                         quarter: 4 - i,
                         average: quarterAvg
                     });
                 }
                 
-                const quarterlyFairPrice = quarterlyData[0].average;
+                const quarterlyFairPrice = quarterlyData[3].average;
                 const currentPrice = historicalData[historicalData.length - 1].price;
-
-                // Calculate best selling price
                 const historicalHigh = Math.max(...historicalData.map(item => item.price));
                 const bestSellPrice = Math.max(
-                    sma * coinSymbols[currentCoin].sellThreshold, // Multiple of fair price
-                    (historicalHigh + currentPrice) / 2 * 0.85 // 85% of mid-point between ATH and current
+                    sma * coinSymbols[currentCoin].sellThreshold,
+                    (historicalHigh + currentPrice) / 2 * 0.85
                 );
                 
-                // Update UI
                 document.getElementById('currentPrice').textContent = formatCurrency(currentPrice);
                 document.getElementById('fairPrice').textContent = formatCurrency(sma);
                 document.getElementById('quarterlyPrice').textContent = formatCurrency(quarterlyFairPrice);
@@ -480,17 +529,21 @@
                 
                 renderChart(historicalData, sma, quarterlyFairPrice, bestSellPrice);
                 
-                document.getElementById('statusText').textContent = 'Data updated successfully';
+                statusText.textContent = 'Data updated successfully';
+                loadingSpinner.style.display = 'none';
+                refreshButton.disabled = false;
                 document.querySelector('.header h1').textContent = 
                     `${coinSymbols[currentCoin].symbol} Fair Price Calculator`;
                 
             } catch (error) {
                 console.error('Error fetching data:', error);
-                document.getElementById('statusText').textContent = 'Error fetching data. Will retry...';
+                document.getElementById('statusText').textContent = '';
+                document.getElementById('loadingSpinner').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('refreshButton').disabled = false;
             }
         }
         
-        // Update comparison text to use correct symbol
         function updatePriceComparison(currentPrice, fairPrice) {
             const comparisonEl = document.getElementById('priceComparison');
             const percentDiff = ((currentPrice - fairPrice) / fairPrice) * 100;
@@ -508,11 +561,9 @@
             }
         }
         
-        // Update chart configuration to ensure text visibility
         function renderChart(priceData, smaValue, quarterlyValue, bestSellValue) {
             const ctx = document.getElementById('btcChart').getContext('2d');
             
-            // Prepare data for chart
             const labels = priceData.map(entry => {
                 const date = new Date(entry.timestamp);
                 return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -520,12 +571,10 @@
             
             const prices = priceData.map(entry => entry.price);
             
-            // Destroy previous chart if it exists
             if (btcChart) {
                 btcChart.destroy();
             }
             
-            // Create new chart with updated options
             btcChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -585,11 +634,11 @@
                         y: {
                             beginAtZero: false,
                             grid: {
-                                color: 'rgba(0, 0, 0, 0.1)',
+                                color: 'rgba(255, 255, 255, 0.05)',
                                 drawBorder: false
                             },
                             ticks: {
-                                color: '#5f6368',
+                                color: '#858585',
                                 callback: function(value) {
                                     return '$' + value.toLocaleString();
                                 }
@@ -598,7 +647,7 @@
                         x: {
                             grid: { display: false },
                             ticks: {
-                                color: '#5f6368',
+                                color: '#858585',
                                 maxRotation: 0,
                                 maxTicksLimit: 12
                             }
@@ -608,30 +657,40 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                color: '#5f6368',
+                                color: '#d4d4d4',
                                 padding: 20,
                                 usePointStyle: true,
                                 pointStyle: 'circle',
                                 font: {
-                                    size: 12,
-                                    family: "'Google Sans', Roboto, Arial, sans-serif"
-                                }
+                                    size: 13,
+                                    weight: '500',
+                                    family: "'Segoe UI', Roboto, Arial, sans-serif"
+                                },
+                                boxWidth: 8,
+                                boxHeight: 8
+                            },
+                            onClick: (e, legendItem, legend) => {
+                                const index = legendItem.datasetIndex;
+                                const ci = legend.chart;
+                                const meta = ci.getDatasetMeta(index);
+                                meta.hidden = meta.hidden === null ? !ci.data.datasets[index].hidden : null;
+                                ci.update();
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(32, 33, 36, 0.95)',
+                            backgroundColor: 'rgba(30, 30, 30, 0.95)',
                             titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
+                            bodyColor: '#d4d4d4',
                             borderColor: 'rgba(60, 64, 67, 0.15)',
                             borderWidth: 1,
                             padding: 12,
                             bodyFont: {
                                 size: 13,
-                                family: "'Google Sans', Roboto, Arial, sans-serif"
+                                family: "'Segoe UI', Roboto, Arial, sans-serif"
                             },
                             titleFont: {
                                 size: 13,
-                                family: "'Google Sans', Roboto, Arial, sans-serif"
+                                family: "'Segoe UI', Roboto, Arial, sans-serif"
                             },
                             callbacks: {
                                 label: function(context) {
@@ -658,7 +717,6 @@
 
         async function changeCoin(coinId) {
             currentCoin = coinId;
-            // Update quarterly info section
             const quarterlyInfo = document.querySelector('.quarterly-info');
             quarterlyInfo.innerHTML = `
                 <h3>${coinDescriptions[coinId].title}</h3>
