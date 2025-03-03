@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cryptocurrency Fair Price Calculator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         :root {
             --background: #000000;
@@ -242,20 +243,38 @@
         }
 
         .live-ticker {
-            background: var(--card-bg);
-            padding: 1rem;
+            padding: 1.5rem;
             margin-bottom: 1.5rem;
-            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
-            font-size: 1.5rem;
-            font-weight: 600;
+            gap: 1.5rem;
+        }
+
+        .live-ticker .price-group {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .live-ticker .coin-symbol {
             color: var(--primary);
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .live-ticker .current-price {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--foreground);
+        }
+
+        .live-ticker .price-change {
+            font-size: 1.2rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .live-ticker .price-change.positive {
@@ -349,6 +368,161 @@
             left: -1rem;
             color: var(--primary);
         }
+
+        .portfolio-card {
+            background: linear-gradient(to bottom right, var(--card-bg), rgba(255, 107, 0, 0.05));
+            border: 1px solid rgba(255, 107, 0, 0.2);
+        }
+
+        .portfolio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .portfolio-header h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .profit-chart-container {
+            height: 200px;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .trading-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 107, 0, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .trade-history {
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .trade-history-header {
+            padding: 1rem;
+            background: rgba(255, 107, 0, 0.1);
+            font-weight: 600;
+        }
+
+        .trade-list {
+            max-height: 250px;
+        }
+
+        .trade-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .trade-item .trade-type {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .trade-item .trade-details {
+            color: var(--muted-foreground);
+            font-size: 0.9rem;
+        }
+
+        .portfolio-card {
+            margin-bottom: 2rem;
+        }
+
+        .portfolio-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat {
+            background: rgba(255, 107, 0, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .stat .label {
+            display: block;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .position-info {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .trade-history {
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .trade-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .trade-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .trade-item .profit {
+            color: var(--success);
+        }
+
+        .trade-item .loss {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -368,7 +542,7 @@
                 <option value="solana">Solana (SOL)</option>
             </select>
         </div>
-        
+
         <div class="card">
             <div class="live-ticker" id="liveTicker">
                 <span class="coin-symbol"></span>
@@ -437,6 +611,71 @@
             </div>
             
             <div class="last-updated" id="lastUpdated"></div>
+        </div>
+
+        <div class="card portfolio-card" style="background: linear-gradient(145deg, #0c0c0c, #1a1a1a);">
+            <div class="portfolio-header">
+                <h3 style="font-size: 1.8rem; background: linear-gradient(45deg, var(--primary), #ff9d4d); background-clip: text; -webkit-background-clip: text; -moz-background-clip: text; -webkit-text-fill-color: transparent;">Trading Portfolio</h3>
+                <div class="portfolio-controls">
+                    <span class="last-sync" id="lastSync" style="color: var(--muted-foreground);"></span>
+                </div>
+            </div>
+            
+            <!-- Add this new strategy description section -->
+            <div class="strategy-info" style="background: rgba(255, 107, 0, 0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid rgba(255, 107, 0, 0.2);">
+                <h4 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.2rem;">Trading Strategy</h4>
+                <div style="color: var(--muted-foreground); line-height: 1.6;">
+                    <p style="margin-bottom: 1rem;">This automated trading system uses a combination of technical indicators to make buy and sell decisions:</p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <i class="fas fa-chart-line" style="color: var(--primary); width: 20px;"></i>
+                            <strong>Auto Buy:</strong> When price falls below the 200-day SMA (Fair Price), indicating a potential value buying opportunity.
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <i class="fas fa-chart-area" style="color: var(--primary); width: 20px;"></i>
+                            <strong>Auto Sell:</strong> When price reaches the Best Selling Price (25-40% above Fair Price).
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="portfolio-stats" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                <div class="stat-card" style="background: rgba(255, 107, 0, 0.1); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(255, 107, 0, 0.2);">
+                    <div class="stat-label" style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Initial Investment</div>
+                    <div class="stat-value" style="font-size: 1.4rem; font-weight: 700;">$100.00</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 107, 0, 0.1); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(255, 107, 0, 0.2);">
+                    <div class="stat-label" style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Current Value</div>
+                    <div class="stat-value" id="currentValue" style="font-size: 1.4rem; font-weight: 700;">$0.00</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 107, 0, 0.1); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(255, 107, 0, 0.2);">
+                    <div class="stat-label" style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Total P/L</div>
+                    <div class="stat-value" id="totalPnL" style="font-size: 1.4rem; font-weight: 700;">$0.00</div>
+                </div>
+                <div class="stat-card" style="background: rgba(255, 107, 0, 0.1); padding: 1.5rem; border-radius: 12px; text-align: center; border: 1px solid rgba(255, 107, 0, 0.2);">
+                    <div class="stat-label" style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 0.5rem;">Success Rate</div>
+                    <div class="stat-value" id="successRate" style="font-size: 1.4rem; font-weight: 700;">0%</div>
+                </div>
+            </div>
+            
+            <div class="portfolio-content" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                <div class="position-info-wrapper">
+                    <div class="position-info" id="positionInfo" style="background: rgba(255, 107, 0, 0.05); padding: 1.5rem; border-radius: 12px; border: 1px solid rgba(255, 107, 0, 0.2);">
+                        <h4 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.2rem;">Current Position</h4>
+                    </div>
+                </div>
+                
+                <div class="trade-history" style="background: rgba(12, 12, 12, 0.8); border-radius: 12px; overflow: hidden;">
+                    <div class="trade-history-header" style="background: rgba(255, 107, 0, 0.1); padding: 1rem; font-weight: 600; color: var(--primary);">
+                        Trade History
+                    </div>
+                    <div class="trade-list" id="tradeList" style="max-height: 300px; overflow-y: auto; padding: 1rem;"></div>
+                </div>
+            </div>
+            
+            <div class="profit-chart-container" style="margin-top: 2rem; height: 250px; background: rgba(12, 12, 12, 0.8); padding: 1rem; border-radius: 12px;">
+                <canvas id="profitChart"></canvas>
+            </div>
         </div>
         
         <div class="footer">
@@ -558,11 +797,13 @@
 
             if (!isNaN(currentPrice) && !isNaN(priceChange) && !isNaN(priceChangePercent)) {
                 liveTicker.innerHTML = `
-                    <span class="coin-symbol">${coinSymbols[currentCoin].symbol}/USDT</span>
-                    <span class="current-price">${formatCurrency(currentPrice)}</span>
-                    <span class="price-change ${priceChange >= 0 ? 'positive' : 'negative'}">
-                        ${priceChange >= 0 ? '▲' : '▼'} ${formatCurrency(Math.abs(priceChange))} (${priceChangePercent.toFixed(2)}%)
-                    </span>
+                    <div class="price-group">
+                        <span class="coin-symbol">${coinSymbols[currentCoin].symbol}/USDT</span>
+                        <span class="current-price">${formatCurrency(currentPrice)}</span>
+                        <span class="price-change ${priceChange >= 0 ? 'positive' : 'negative'}">
+                            ${priceChange >= 0 ? '▲' : '▼'} ${formatCurrency(Math.abs(priceChange))} (${Math.abs(priceChangePercent).toFixed(2)}%)
+                        </span>
+                    </div>
                 `;
 
                 // Update comparison if we have the fair price
@@ -571,6 +812,11 @@
                     const fairPrice = parseFloat(fairPriceElement.textContent.replace(/[$,]/g, ''));
                     updatePriceComparison(currentPrice, fairPrice);
                 }
+
+                const bestSellPrice = parseFloat(document.getElementById('bestSellPrice').textContent.replace(/[$,]/g, ''));
+
+                // Simulate trading with current prices
+                simulateTrading(currentPrice, fairPrice, bestSellPrice);
             }
         }
 
@@ -584,6 +830,8 @@
             `;
             fetchInitialData();
             initializeWebSocket();
+            loadPortfolio();
+            updateTradingPeriod(); // Add this line
         });
 
         async function fetchInitialData() {
@@ -653,6 +901,27 @@
                 document.getElementById('statusText').textContent = 'Live data stream active';
                 document.querySelector('.header h1').textContent = 
                     `${coinSymbols[currentCoin].symbol} Fair Price Calculator`;
+
+                // Force initialize portfolio with the quarterly price
+                if (currentCoin === 'bitcoin') {
+                    const coinsAmount = 100 / quarterlyFairPrice;
+                    portfolio = {
+                        initialInvestment: 100,
+                        currentValue: 100,
+                        coins: coinsAmount,
+                        entryPrice: quarterlyFairPrice,
+                        trades: [{
+                            type: 'BUY',
+                            price: quarterlyFairPrice,
+                            coins: coinsAmount,
+                            profit: 0,
+                            timestamp: new Date('2024-07-28T09:30:00Z').toISOString() // Using 2024 date
+                        }]
+                    };
+                    savePortfolio();
+                    updatePortfolioDisplay();
+                    updateTradeHistory();
+                }
                 
             } catch (error) {
                 console.error('Error fetching initial data:', error);
@@ -671,6 +940,7 @@
             `;
             await fetchInitialData();
             initializeWebSocket(); // Reconnect WebSocket with new coin
+            loadPortfolio(); // Load portfolio for the selected coin
         }
 
         function updatePriceComparison(currentPrice, fairPrice) {
@@ -693,10 +963,14 @@
         function renderChart(priceData, smaValue, quarterlyValue, bestSellValue) {
             const ctx = document.getElementById('btcChart').getContext('2d');
             
-            // Prepare data for chart
+            // Prepare data for chart with full date format
             const labels = priceData.map(entry => {
                 const date = new Date(entry.timestamp);
-                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                return date.toLocaleDateString('en-US', {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: 'numeric'
+                });
             });
             
             const prices = priceData.map(entry => entry.price);
@@ -781,7 +1055,16 @@
                             ticks: {
                                 color: 'rgba(255, 255, 255, 0.7)',
                                 maxRotation: 0,
-                                maxTicksLimit: 12
+                                maxTicksLimit: 8,
+                                callback: function(value, index) {
+                                    // Show full date MM/DD/YYYY
+                                    const date = new Date(priceData[index].timestamp);
+                                    return date.toLocaleDateString('en-US', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        year: 'numeric'
+                                    });
+                                }
                             }
                         }
                     },
@@ -807,6 +1090,15 @@
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2
                                     });
+                                },
+                                title: function(context) {
+                                    // Show full date in tooltip
+                                    const date = new Date(priceData[context[0].dataIndex].timestamp);
+                                    return date.toLocaleDateString('en-US', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        year: 'numeric'
+                                    });
                                 }
                             }
                         }
@@ -830,6 +1122,322 @@
             content.classList.toggle('active');
             header.classList.toggle('active');
         }
+
+        // Add new portfolio tracking variables
+        let portfolio = null;
+
+        // Load portfolio from localStorage
+        function loadPortfolio() {
+            // Set initial purchase date to July 28th, 2024
+            const initialPurchaseDate = new Date('2024-07-28T09:30:00Z').toISOString();
+            
+            // Clear any existing portfolio data
+            localStorage.removeItem(`portfolio_${currentCoin}`);
+            
+            if (currentCoin === 'bitcoin') {
+                const quarterlyPrice = parseFloat(document.getElementById('quarterlyPrice').textContent.replace(/[$,]/g, ''));
+                if (quarterlyPrice) {
+                    const coinsAmount = 100 / quarterlyPrice;
+                    portfolio = {
+                        initialInvestment: 100,
+                        currentValue: 100,
+                        coins: coinsAmount,
+                        entryPrice: quarterlyPrice,
+                        trades: [{
+                            type: 'BUY',
+                            price: quarterlyPrice,
+                            coins: coinsAmount,
+                            profit: 0,
+                            timestamp: initialPurchaseDate // Using 2024 date
+                        }]
+                    };
+                }
+            } else {
+                portfolio = {
+                    initialInvestment: 100,
+                    currentValue: 100,
+                    coins: 0,
+                    entryPrice: 0,
+                    trades: []
+                };
+            }
+            
+            savePortfolio();
+            updatePortfolioDisplay();
+            updateTradeHistory();
+        }
+
+        // Save portfolio to localStorage
+        function savePortfolio() {
+            localStorage.setItem(`portfolio_${currentCoin}`, JSON.stringify(portfolio));
+        }
+
+        // Simulate trading
+        function simulateTrading(currentPrice, fairPrice, bestSellPrice) {
+            if (portfolio.coins === 0 && currentPrice <= fairPrice) {
+                // Buy condition: When we have no coins and price drops below fair value
+                portfolio.coins = portfolio.currentValue / currentPrice;
+                portfolio.entryPrice = currentPrice;
+                addTrade('BUY', currentPrice, portfolio.coins, 0);
+            } else if (portfolio.coins > 0 && currentPrice >= bestSellPrice) {
+                // Sell condition: When we have coins and price reaches best sell target
+                const sellValue = portfolio.coins * currentPrice;
+                const profit = sellValue - (portfolio.coins * portfolio.entryPrice);
+                portfolio.currentValue = sellValue;
+                portfolio.coins = 0;
+                portfolio.entryPrice = 0;
+                addTrade('SELL', currentPrice, 0, profit);
+            }
+
+            updatePortfolioDisplay();
+            savePortfolio();
+        }
+
+        function addTrade(type, price, coins, profit) {
+            const trade = {
+                type,
+                price,
+                coins,
+                profit,
+                timestamp: new Date().toISOString()
+            };
+            portfolio.trades.unshift(trade);
+            updateTradeHistory();
+        }
+
+        function updatePortfolioDisplay() {
+            // Get current price from the live ticker or use the entry price if not available
+            const currentPriceElement = document.querySelector('.current-price');
+            const currentPrice = currentPriceElement ? 
+                parseFloat(currentPriceElement.textContent.replace(/[$,]/g, '')) : 
+                portfolio.entryPrice;
+
+            // Calculate current value and P/L
+            const currentValue = portfolio.coins > 0 ? 
+                portfolio.coins * currentPrice : 
+                portfolio.currentValue;
+            
+            const totalPnL = currentValue - portfolio.initialInvestment;
+            const unrealizedPnL = portfolio.coins > 0 ? 
+                (currentPrice - portfolio.entryPrice) * portfolio.coins : 
+                0;
+
+            // Add ROI calculation
+            const roi = ((currentValue - portfolio.initialInvestment) / portfolio.initialInvestment) * 100;
+
+            // Update the display
+            document.getElementById('currentValue').textContent = formatCurrency(currentValue);
+            document.getElementById('totalPnL').textContent = formatCurrency(totalPnL);
+            document.getElementById('totalPnL').className = totalPnL >= 0 ? 'positive' : 'negative';
+
+            // Update position info
+            const positionInfo = document.getElementById('positionInfo');
+            if (portfolio.coins > 0) {
+                positionInfo.innerHTML = `
+                    <h4 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.2rem;">Current Position</h4>
+                    <div class="position-details" style="display: grid; gap: 0.8rem;">
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>Holdings:</span>
+                            <span style="font-weight: 600;">${portfolio.coins.toFixed(8)} ${coinSymbols[currentCoin].symbol}</span>
+                        </p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>Entry Price:</span>
+                            <span style="font-weight: 600;">${formatCurrency(portfolio.entryPrice)}</span>
+                        </p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>Current Price:</span>
+                            <span style="font-weight: 600;">${formatCurrency(currentPrice)}</span>
+                        </p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>ROI:</span>
+                            <span style="font-weight: 600; color: ${roi >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                ${roi.toFixed(2)}%
+                            </span>
+                        </p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>Unrealized P/L:</span>
+                            <span style="font-weight: 600; color: ${unrealizedPnL >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                ${formatCurrency(unrealizedPnL)}
+                            </span>
+                        </p>
+                        <p style="display: flex; justify-content: space-between;">
+                            <span>Hold Time:</span>
+                            <span style="font-weight: 600;">${getHoldTime(portfolio.trades[0].timestamp)}</span>
+                        </p>
+                    </div>
+                `;
+            } else {
+                positionInfo.innerHTML = '<h4>Current Position</h4><p>No active position</p>';
+            }
+
+            updateProfitChart();
+        }
+
+        function updateTradeHistory() {
+            const tradeList = document.getElementById('tradeList');
+            const successfulTrades = portfolio.trades.filter(t => t.type === 'SELL' && t.profit > 0).length;
+            const totalTrades = portfolio.trades.filter(t => t.type === 'SELL').length;
+            const successRate = totalTrades > 0 ? (successfulTrades / totalTrades * 100).toFixed(1) : 0;
+            
+            document.getElementById('successRate').textContent = `${successRate}%`;
+            
+            tradeList.innerHTML = portfolio.trades.map(trade => `
+                <div class="trade-item">
+                    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                        <span class="trade-type" style="font-size: 1.1rem;">${trade.type}</span>
+                        <span style="color: var(--muted-foreground); font-size: 0.85rem;">
+                            ${new Date(trade.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit'
+                            })} ${new Date(trade.timestamp).toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: true
+                            })}
+                        </span>
+                    </div>
+                    <span class="trade-details">
+                        ${formatCurrency(trade.price)} 
+                        ${trade.type === 'BUY' ? 
+                            `× ${trade.coins.toFixed(8)} ${coinSymbols[currentCoin].symbol}` : 
+                            `<span class="${trade.profit >= 0 ? 'profit' : 'loss'}">(${trade.profit >= 0 ? '+' : ''}${formatCurrency(trade.profit)})</span>`}
+                    </span>
+                </div>
+            `).join('');
+            
+            updateProfitChart();
+        }
+
+        let profitChart = null;
+
+        function updateProfitChart() {
+            const ctx = document.getElementById('profitChart').getContext('2d');
+            
+            if (profitChart) {
+                profitChart.destroy();
+            }
+            
+            // Calculate cumulative profits
+            let cumulativeProfit = 0;
+            const profitData = portfolio.trades.slice().reverse().map(trade => {
+                if (trade.type === 'SELL') {
+                    cumulativeProfit += trade.profit;
+                }
+                return {
+                    timestamp: new Date(trade.timestamp),
+                    profit: cumulativeProfit
+                };
+            });
+
+            profitChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: profitData.map(d => d.timestamp.toLocaleDateString('en-US', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        year: 'numeric'
+                    })),
+                    datasets: [{
+                        label: 'Cumulative Profit/Loss',
+                        data: profitData.map(d => d.profit),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: value => '$' + value.toFixed(2)
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                maxTicksLimit: 5,
+                                callback: function(value, index, values) {
+                                    const date = new Date(profitData[index].timestamp);
+                                    return date.toLocaleDateString('en-US', {
+                                        month: '2-digit',
+                                        day: '2-digit',
+                                        year: 'numeric'
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Add this helper function to calculate hold time
+        function getHoldTime(purchaseDate) {
+            const start = new Date(purchaseDate);
+            const now = new Date();
+            const diffTime = Math.abs(now - start);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+            
+            const formattedPurchaseDate = start.toLocaleDateString('en-US', {
+                month: '2-digit',
+                day: '2-digit',
+                year: 'numeric'
+            }) + ' ' + start.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            
+            return `${diffDays}d ${diffHours}h ${diffMinutes}m (since ${formattedPurchaseDate})`;
+        }
+
+        // Add this function to calculate and update trading period
+        function updateTradingPeriod() {
+            const startDate = new Date('2024-07-28T09:30:00Z');
+            const now = new Date();
+            const diffTime = Math.abs(now - startDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            const diffMonths = Math.floor(diffDays / 30);
+            const remainingDays = diffDays % 30;
+            
+            const formattedStart = startDate.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            
+            let duration = '';
+            if (diffMonths > 0) {
+                duration += `${diffMonths} month${diffMonths > 1 ? 's' : ''} `;
+            }
+            if (remainingDays > 0) {
+                duration += `${remainingDays} day${remainingDays > 1 ? 's' : ''}`;
+            }
+            
+            document.getElementById('tradingDuration').textContent = 
+                `Active for ${duration} (since ${formattedStart})`;
+        }
+
+        // Update the trading period every minute
+        setInterval(updateTradingPeriod, 60000);
     </script>
 </body>
 </html>
