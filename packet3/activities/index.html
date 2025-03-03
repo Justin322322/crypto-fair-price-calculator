@@ -7,287 +7,236 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            /* Google Material Design inspired colors */
-            --background: #f8f9fa;
-            --foreground: #202124;
-            --primary: #1a73e8;
-            --primary-light: rgba(26, 115, 232, 0.1);
-            --card-bg: #ffffff;
-            --border-color: #dadce0;
-            --muted-foreground: #5f6368;
-            --success: #188038;
-            --warning: #f29900;
-            --danger: #d93025;
-            --shadow: 0 1px 2px 0 rgb(60 64 67 / 0.3), 0 1px 3px 1px rgb(60 64 67 / 0.15);
+            --background: #000000;
+            --foreground: #ffffff;
+            --primary: #ff6b00;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --card-bg: #0c0c0c;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --muted-foreground: #a3a3a2;
         }
         
         body {
-            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background: var(--background);
+            background-color: var(--background);
             color: var(--foreground);
-            line-height: 1.5;
-            min-height: 100vh;
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 1.5rem;
+            padding: 2rem;
         }
         
         .card {
             background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            border: none;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
         
         .header {
             text-align: center;
-            margin-bottom: 2.5rem;
-            padding: 1rem;
+            margin-bottom: 2rem;
         }
         
         .header h1 {
-            font-size: 2.25rem;
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
             color: var(--foreground);
-            font-weight: 500;
-            letter-spacing: -0.02em;
+            font-weight: 700;
         }
         
         .header p {
             color: var(--muted-foreground);
-            font-size: 1rem;
+            font-size: 1.1rem;
             max-width: 600px;
             margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .header h3 {
-            color: var(--muted-foreground);
-            font-weight: 400;
-            margin-top: 1rem;
-            font-size: 0.875rem;
         }
         
         .price-cards {
-            display: flex;
-            gap: 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
             margin-bottom: 2rem;
-            overflow-x: auto;
-            padding: 0.5rem;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        
-        .price-cards::-webkit-scrollbar {
-            display: none;
         }
         
         .price-card {
-            flex: 1;
-            min-width: 250px;
-            padding: 1.25rem;
-            border-radius: 8px;
+            padding: 1.5rem;
+            border-radius: 12px;
             background: var(--card-bg);
             text-align: center;
-            box-shadow: var(--shadow);
-            border: none;
-            position: relative;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
         }
         
-        .price-card::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 0 0 8px 8px;
-            opacity: 0.1;
+        .price-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .price-card.current {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: rgba(52, 152, 219, 0.4);
+        }
+        
+        .price-card.fair {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: rgba(46, 204, 113, 0.4);
+        }
+        
+        .price-card.quarterly {
+            background: rgba(243, 156, 18, 0.2);
+            border-color: rgba(243, 156, 18, 0.4);
+        }
+
+        .price-card.best-sell {
+            background: rgba(155, 89, 182, 0.2);
+            border-color: rgba(155, 89, 182, 0.4);
         }
         
         .price-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-            color: var(--muted-foreground);
-            letter-spacing: 0.01em;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
         }
         
         .price-value {
-            font-size: 1.875rem;
-            font-weight: 500;
-            margin-bottom: 0.75rem;
-            color: var(--primary);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
         
         .price-info {
-            font-size: 0.875rem;
-            color: var(--muted-foreground);
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
         
         .chart-container {
-            height: 400px;
+            height: 350px;
             position: relative;
-            margin: 2rem 0;
+            margin-bottom: 1.5rem;
             background: var(--card-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: none;
-        }
-        
-        .coin-selector {
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        
-        .coin-selector select {
-            padding: 0.625rem 2rem 0.625rem 1rem;
-            font-size: 0.875rem;
-            border-radius: 4px;
+            border-radius: 12px;
+            padding: 1rem;
             border: 1px solid var(--border-color);
-            background: var(--card-bg);
-            color: var(--foreground);
-            cursor: pointer;
-            min-width: 200px;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.5rem center;
-            background-size: 1em;
-        }
-        
-        .coin-selector select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-light);
-        }
-        
-        .comparison {
-            margin: 1.5rem 0;
-            text-align: center;
-            font-weight: 500;
-            padding: 0.875rem;
-            border-radius: 4px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            font-size: 0.875rem;
-        }
-        
-        .comparison.overvalued {
-            color: var(--danger);
-            background: #fce8e6;
-        }
-        
-        .comparison.undervalued {
-            color: var(--success);
-            background: #e6f4ea;
-        }
-        
-        .comparison.fair {
-            color: var(--primary);
-            background: var(--primary-light);
-        }
-        
-        .quarterly-info {
-            margin-top: 2rem;
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: var(--shadow);
-            border: none;
-        }
-        
-        .quarterly-info h3 {
-            margin-top: 0;
-            color: var(--foreground);
-            font-weight: 500;
-            font-size: 1rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .quarterly-info p {
-            color: var(--muted-foreground);
-            margin-bottom: 0;
-            line-height: 1.6;
-            font-size: 0.875rem;
         }
         
         .status {
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             color: var(--muted-foreground);
-            font-size: 0.875rem;
-            gap: 0.5rem;
+            font-size: 0.9rem;
         }
         
         .status-indicator {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
+            margin-right: 8px;
             background-color: var(--primary);
+            animation: blink 2s infinite;
         }
         
-        .last-updated {
-            text-align: right;
-            font-size: 0.75rem;
-            color: var(--muted-foreground);
-            margin-top: 0.75rem;
+        .quarterly-info {
+            margin-top: 1.5rem;
+            background: rgba(255, 107, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .quarterly-info h3 {
+            margin-top: 0;
+            color: var(--primary);
         }
         
         .footer {
             text-align: center;
-            margin-top: 3rem;
+            margin-top: 2rem;
             color: var(--muted-foreground);
-            font-size: 0.875rem;
-            padding: 1.5rem;
-            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
         }
         
-        @media (max-width: 1200px) {
-            .price-cards {
-                flex-wrap: wrap;
-            }
-            
-            .price-card {
-                flex: 1 1 calc(50% - 1rem);
-                min-width: calc(50% - 1rem);
-            }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
         
         @media (max-width: 768px) {
+            .price-cards {
+                grid-template-columns: 1fr;
+            }
+            
             .container {
                 padding: 1rem;
             }
-            
-            .header h1 {
-                font-size: 1.75rem;
-            }
-            
-            .price-card {
-                flex: 1 1 100%;
-                min-width: 100%;
-            }
-            
-            .chart-container {
-                height: 300px;
-                padding: 1rem;
-            }
-            
-            .quarterly-info {
-                padding: 1rem;
-            }
+        }
+        
+        .comparison {
+            margin-top: 1rem;
+            text-align: center;
+            font-weight: 600;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--card-bg);
+        }
+        
+        .comparison.overvalued {
+            color: var(--danger);
+        }
+        
+        .comparison.undervalued {
+            color: var(--success);
+        }
+        
+        .comparison.fair {
+            color: var(--primary);
+        }
+        
+        .last-updated {
+            text-align: right;
+            font-size: 0.8rem;
+            color: var(--muted-foreground);
+            margin-top: 1rem;
+        }
+
+        .coin-selector {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .coin-selector select {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            color: var(--foreground);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff6b00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+        
+        .coin-selector select:hover, .coin-selector select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
         }
     </style>
 </head>
@@ -508,7 +457,7 @@
             }
         }
         
-        // Update chart configuration to ensure text visibility
+        // Update chart label to use correct symbol
         function renderChart(priceData, smaValue, quarterlyValue, bestSellValue) {
             const ctx = document.getElementById('btcChart').getContext('2d');
             
@@ -525,7 +474,7 @@
                 btcChart.destroy();
             }
             
-            // Create new chart with updated options
+            // Create new chart
             btcChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -534,18 +483,18 @@
                         {
                             label: `${coinSymbols[currentCoin].symbol} Price (USD)`,
                             data: prices,
-                            borderColor: '#1a73e8',
-                            backgroundColor: 'rgba(26, 115, 232, 0.1)',
+                            borderColor: '#ff6b00',
+                            backgroundColor: 'rgba(255, 107, 0, 0.1)',
                             borderWidth: 2,
                             fill: true,
-                            tension: 0.4,
+                            tension: 0.3,
                             pointRadius: 0,
-                            pointHoverRadius: 4
+                            pointHoverRadius: 5
                         },
                         {
                             label: '200-Day SMA (Fair Price)',
                             data: Array(prices.length).fill(smaValue),
-                            borderColor: '#188038',
+                            borderColor: '#2ecc71',
                             borderWidth: 2,
                             borderDash: [5, 5],
                             fill: false,
@@ -555,7 +504,7 @@
                         {
                             label: 'Quarterly Fair Price',
                             data: Array(prices.length).fill(quarterlyValue),
-                            borderColor: '#f29900',
+                            borderColor: '#f39c12',
                             borderWidth: 2,
                             borderDash: [3, 3],
                             fill: false,
@@ -565,7 +514,7 @@
                         {
                             label: 'Best Selling Price',
                             data: Array(prices.length).fill(bestSellValue),
-                            borderColor: '#a142f4',
+                            borderColor: '#9b59b6',
                             borderWidth: 2,
                             borderDash: [2, 2],
                             fill: false,
@@ -584,55 +533,42 @@
                     scales: {
                         y: {
                             beginAtZero: false,
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.1)',
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)',
                                 drawBorder: false
                             },
                             ticks: {
-                                color: '#5f6368',
+                                color: 'rgba(255, 255, 255, 0.7)',
                                 callback: function(value) {
                                     return '$' + value.toLocaleString();
                                 }
                             }
                         },
-                        x: {
+                        x: { 
                             grid: { display: false },
                             ticks: {
-                                color: '#5f6368',
+                                color: 'rgba(255, 255, 255, 0.7)',
                                 maxRotation: 0,
                                 maxTicksLimit: 12
                             }
                         }
                     },
                     plugins: {
-                        legend: {
+                        legend: { 
                             position: 'bottom',
                             labels: {
-                                color: '#5f6368',
+                                color: 'rgba(255, 255, 255, 0.7)',
                                 padding: 20,
                                 usePointStyle: true,
-                                pointStyle: 'circle',
-                                font: {
-                                    size: 12,
-                                    family: "'Google Sans', Roboto, Arial, sans-serif"
-                                }
+                                pointStyle: 'circle'
                             }
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(32, 33, 36, 0.95)',
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
                             titleColor: '#ffffff',
                             bodyColor: '#ffffff',
-                            borderColor: 'rgba(60, 64, 67, 0.15)',
+                            borderColor: 'rgba(255, 107, 0, 0.3)',
                             borderWidth: 1,
-                            padding: 12,
-                            bodyFont: {
-                                size: 13,
-                                family: "'Google Sans', Roboto, Arial, sans-serif"
-                            },
-                            titleFont: {
-                                size: 13,
-                                family: "'Google Sans', Roboto, Arial, sans-serif"
-                            },
                             callbacks: {
                                 label: function(context) {
                                     return context.dataset.label + ': $' + context.parsed.y.toLocaleString(undefined, {
