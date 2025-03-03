@@ -75,6 +75,8 @@
             text-align: center;
             transition: all 0.3s ease;
             border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
         }
         
         .price-card:hover {
@@ -197,7 +199,7 @@
         }
         
         .comparison.undervalued {
-            color: var(--success);
+            color: var (--success);
         }
         
         .comparison.fair {
@@ -263,6 +265,90 @@
         .live-ticker .price-change.negative {
             color: var(--danger);
         }
+
+        /* Add these new styles */
+        .methodology-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .methodology-header {
+            padding: 1rem 1.5rem;
+            background: rgba(255, 107, 0, 0.1);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .methodology-header h3 {
+            margin: 0;
+            color: var(--primary);
+        }
+
+        .methodology-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .methodology-content.active {
+            display: block;
+        }
+
+        .calculation-method {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .calculation-method:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .methodology-header .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .methodology-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .calculation-details {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .calculation-details p {
+            margin: 0 0 0.5rem 0;
+            font-weight: 500;
+        }
+
+        .calculation-details ul {
+            margin: 0;
+            padding-left: 1.2rem;
+            list-style-type: none;
+        }
+
+        .calculation-details ul li {
+            position: relative;
+            padding: 0.2rem 0;
+            line-height: 1.4;
+        }
+
+        .calculation-details ul li:before {
+            content: "•";
+            position: absolute;
+            left: -1rem;
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -295,18 +381,42 @@
                     <div class="price-label">Fair Price (200-day SMA)</div>
                     <div class="price-value" id="fairPrice">$--,---</div>
                     <div class="price-info">Based on 200-day moving average</div>
+                    <div class="calculation-details">
+                        <p>Calculated using the 200-day Simple Moving Average (SMA):</p>
+                        <ul>
+                            <li>Averages closing prices over 200 days</li>
+                            <li>Smooths out market volatility</li>
+                            <li>Industry-standard indicator for long-term trends</li>
+                        </ul>
+                    </div>
                 </div>
                 
                 <div class="price-card quarterly">
                     <div class="price-label">Quarterly Fair Price</div>
                     <div class="price-value" id="quarterlyPrice">$--,---</div>
                     <div class="price-info">Based on quarterly averages</div>
+                    <div class="calculation-details">
+                        <p>Analysis of seasonal market patterns:</p>
+                        <ul>
+                            <li>Averages most recent quarter prices</li>
+                            <li>Accounts for seasonal trends</li>
+                            <li>Weighs recent market conditions</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div class="price-card best-sell">
                     <div class="price-label">Best Selling Price</div>
                     <div class="price-value" id="bestSellPrice">$--,---</div>
                     <div class="price-info">Optimal selling target</div>
+                    <div class="calculation-details">
+                        <p>Determined through multiple factors:</p>
+                        <ul>
+                            <li>Historical high analysis</li>
+                            <li>25-40% premium above fair price</li>
+                            <li>Market momentum indicators</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             
@@ -712,6 +822,13 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(value);
+        }
+
+        // Add this new function
+        function toggleMethodology(header) {
+            const content = header.nextElementSibling;
+            content.classList.toggle('active');
+            header.classList.toggle('active');
         }
     </script>
 </body>
