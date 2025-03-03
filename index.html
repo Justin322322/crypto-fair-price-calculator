@@ -238,6 +238,31 @@
             outline: none;
             box-shadow: 0 0 0 2px rgba(255, 107, 0, 0.2);
         }
+
+        .live-ticker {
+            background: var(--card-bg);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .live-ticker .coin-symbol {
+            color: var(--primary);
+        }
+
+        .live-ticker .price-change.positive {
+            color: var(--success);
+        }
+
+        .live-ticker .price-change.negative {
+            color: var(--danger);
+        }
     </style>
 </head>
 <body>
@@ -259,13 +284,13 @@
         </div>
         
         <div class="card">
+            <div class="live-ticker" id="liveTicker">
+                <span class="coin-symbol"></span>
+                <span class="current-price"></span>
+                <span class="price-change"></span>
+            </div>
+            
             <div class="price-cards">
-                <div class="price-card current">
-                    <div class="price-label">Current Price</div>
-                    <div class="price-value" id="currentPrice">$--,---</div>
-                    <div class="price-info">Live market price</div>
-                </div>
-                
                 <div class="price-card fair">
                     <div class="price-label">Fair Price (200-day SMA)</div>
                     <div class="price-value" id="fairPrice">$--,---</div>
@@ -310,11 +335,12 @@
     </div>
 
     <script>
-        // Chart instance
         let btcChart = null;
         let historicalData = [];
         let quarterlyData = [];
         let currentCoin = 'bitcoin';
+        let ws = null; // WebSocket instance
+
         // Update coin symbols to match Binance pairs
         const coinSymbols = {
             'bitcoin': {symbol: 'BTC', pair: 'BTCUSDT', sellThreshold: 1.25}, // 25% above fair price
@@ -348,6 +374,96 @@
             }
         };
 
+        function initializeWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+
+            try {
+                // Connect to Binance WebSocket stream with miniTicker (more stable)
+                const wsUrl = `wss://stream.binance.com:9443/ws/${coinSymbols[currentCoin].pair.toLowerCase()}@miniTicker`;
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    console.log('WebSocket connected successfully');
+                    document.getElementById('statusText').textContent = 'Live data stream active';
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        // Use close price from miniTicker
+                        const tickerData = {
+                            c: data.c, // Current price
+                            p: (parseFloat(data.c) - parseFloat(data.o)).toFixed(2), // Price change (close - open)
+                            P: ((parseFloat(data.c) - parseFloat(data.o)) / parseFloat(data.o) * 100).toFixed(2) // Price change percent
+                        };
+                        updateLiveTicker(tickerData);
+                    } catch (error) {
+                        console.error('Error processing ticker data:', error);
+                    }
+                };
+
+                ws.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    document.getElementById('statusText').textContent = 'Connection error, retrying...';
+                };
+
+                ws.onclose = (event) => {
+                    console.log('WebSocket connection closed:', event.code, event.reason);
+                    document.getElementById('statusText').textContent = 'Connection closed, reconnecting...';
+                    // Attempt to reconnect after 2 seconds
+                    setTimeout(() => {
+                        if (document.visibilityState === 'visible') {
+                            initializeWebSocket();
+                        }
+                    }, 2000);
+                };
+
+            } catch (error) {
+                console.error('Error creating WebSocket:', error);
+                document.getElementById('statusText').textContent = 'Connection failed, retrying...';
+                setTimeout(initializeWebSocket, 2000);
+            }
+        }
+
+        // Add visibility change handler to manage WebSocket connection
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    initializeWebSocket();
+                }
+            } else {
+                if (ws) {
+                    ws.close();
+                }
+            }
+        });
+
+        function updateLiveTicker(tickerData) {
+            const liveTicker = document.getElementById('liveTicker');
+            const currentPrice = parseFloat(tickerData.c);
+            const priceChange = parseFloat(tickerData.p);
+            const priceChangePercent = parseFloat(tickerData.P);
+
+            if (!isNaN(currentPrice) && !isNaN(priceChange) && !isNaN(priceChangePercent)) {
+                liveTicker.innerHTML = `
+                    <span class="coin-symbol">${coinSymbols[currentCoin].symbol}/USDT</span>
+                    <span class="current-price">${formatCurrency(currentPrice)}</span>
+                    <span class="price-change ${priceChange >= 0 ? 'positive' : 'negative'}">
+                        ${priceChange >= 0 ? '▲' : '▼'} ${formatCurrency(Math.abs(priceChange))} (${priceChangePercent.toFixed(2)}%)
+                    </span>
+                `;
+
+                // Update comparison if we have the fair price
+                const fairPriceElement = document.getElementById('fairPrice');
+                if (fairPriceElement && fairPriceElement.textContent !== '$--,---') {
+                    const fairPrice = parseFloat(fairPriceElement.textContent.replace(/[$,]/g, ''));
+                    updatePriceComparison(currentPrice, fairPrice);
+                }
+            }
+        }
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
             // Set initial quarterly info
@@ -356,14 +472,13 @@
                 <h3>${coinDescriptions['bitcoin'].title}</h3>
                 <p>${coinDescriptions['bitcoin'].description}</p>
             `;
-            fetchData();
-            // Set up automatic refresh every 5 minutes
-            setInterval(fetchData, 300000);
+            fetchInitialData();
+            initializeWebSocket();
         });
-        
-        async function fetchData() {
+
+        async function fetchInitialData() {
             try {
-                document.getElementById('statusText').textContent = 'Fetching real-time data...';
+                document.getElementById('statusText').textContent = 'Fetching initial data...';
                 
                 // Fetch 1-day klines (candlesticks) for the last 365 days
                 const response = await fetch(
@@ -377,7 +492,6 @@
                 const data = await response.json();
                 
                 // Extract price data from klines
-                // Binance kline format: [timestamp, open, high, low, close, volume, ...]
                 historicalData = data.map(item => ({
                     timestamp: item[0],
                     price: parseFloat(item[4]) // Using closing price
@@ -412,34 +526,43 @@
                 // Calculate best selling price
                 const historicalHigh = Math.max(...historicalData.map(item => item.price));
                 const bestSellPrice = Math.max(
-                    sma * coinSymbols[currentCoin].sellThreshold, // Multiple of fair price
-                    (historicalHigh + currentPrice) / 2 * 0.85 // 85% of mid-point between ATH and current
+                    sma * coinSymbols[currentCoin].sellThreshold,
+                    (historicalHigh + currentPrice) / 2 * 0.85
                 );
                 
                 // Update UI
-                document.getElementById('currentPrice').textContent = formatCurrency(currentPrice);
                 document.getElementById('fairPrice').textContent = formatCurrency(sma);
                 document.getElementById('quarterlyPrice').textContent = formatCurrency(quarterlyFairPrice);
                 document.getElementById('bestSellPrice').textContent = formatCurrency(bestSellPrice);
-                
-                updatePriceComparison(currentPrice, sma);
                 
                 const now = new Date();
                 document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
                 
                 renderChart(historicalData, sma, quarterlyFairPrice, bestSellPrice);
                 
-                document.getElementById('statusText').textContent = 'Data updated successfully';
+                document.getElementById('statusText').textContent = 'Live data stream active';
                 document.querySelector('.header h1').textContent = 
                     `${coinSymbols[currentCoin].symbol} Fair Price Calculator`;
                 
             } catch (error) {
-                console.error('Error fetching data:', error);
-                document.getElementById('statusText').textContent = 'Error fetching data. Will retry...';
+                console.error('Error fetching initial data:', error);
+                document.getElementById('statusText').textContent = 'Error fetching initial data. Will retry...';
+                setTimeout(fetchInitialData, 5000);
             }
         }
-        
-        // Update comparison text to use correct symbol
+
+        async function changeCoin(coinId) {
+            currentCoin = coinId;
+            // Update quarterly info section
+            const quarterlyInfo = document.querySelector('.quarterly-info');
+            quarterlyInfo.innerHTML = `
+                <h3>${coinDescriptions[coinId].title}</h3>
+                <p>${coinDescriptions[coinId].description}</p>
+            `;
+            await fetchInitialData();
+            initializeWebSocket(); // Reconnect WebSocket with new coin
+        }
+
         function updatePriceComparison(currentPrice, fairPrice) {
             const comparisonEl = document.getElementById('priceComparison');
             const percentDiff = ((currentPrice - fairPrice) / fairPrice) * 100;
@@ -457,7 +580,6 @@
             }
         }
         
-        // Update chart label to use correct symbol
         function renderChart(priceData, smaValue, quarterlyValue, bestSellValue) {
             const ctx = document.getElementById('btcChart').getContext('2d');
             
@@ -590,17 +712,6 @@
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
             }).format(value);
-        }
-
-        async function changeCoin(coinId) {
-            currentCoin = coinId;
-            // Update quarterly info section
-            const quarterlyInfo = document.querySelector('.quarterly-info');
-            quarterlyInfo.innerHTML = `
-                <h3>${coinDescriptions[coinId].title}</h3>
-                <p>${coinDescriptions[coinId].description}</p>
-            `;
-            await fetchData();
         }
     </script>
 </body>
